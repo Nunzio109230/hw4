@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive study of penetration scores, the Law of Large Numbers and the Central Limit Theorem.">
+  <title>Homework 3 | Stochastic Penetration Models</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)']],
+      displayMath: [['\\[', '\\]']]
+    }
+  };
+</script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+<script src="script.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top"> Stochastic Systems</a>
+    <nav>
+      <a href="#models">Models</a>
+      <a href="#simulation">Simulation</a>
+      <a href="#theory">Theory</a>
+      <a href="#interpretation">Interpretation</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span></span> STATISTICS · HOMEWORK 3</div>
+        <h1>Understanding<br>penetration through<br><span>random processes.</span></h1>
+        <p class="hero-description">
+          How does an aggregate score evolve when many independent steps
+          are combined? Explore two stochastic models and investigate the
+          Law of Large Numbers and the Central Limit Theorem.
+        </p>
+        <a class="primary-link" href="#simulation">Explore the simulation <span>↘</span></a>
+      </div>
+      <div class="hero-visual">
+        <div class="visual-label">CUMULATIVE SCORE</div>
+        <svg viewBox="0 0 440 265" role="img" aria-label="Illustration of random cumulative trajectories">
+          <defs>
+            <pattern id="grid" width="35" height="35" patternUnits="userSpaceOnUse">
+              <path d="M 35 0 L 0 0 0 35" fill="none" stroke="#dce4f1" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="440" height="265" fill="url(#grid)"/>
+          <line x1="20" y1="132" x2="420" y2="132" stroke="#b6c5d9" stroke-dasharray="4 5"/>
+          <polyline points="20,132 55,116 90,132 125,100 160,116 195,84 230,100 265,68 300,84 335,52 370,68 420,36" fill="none" stroke="#5269e8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="20,132 55,148 90,132 125,148 160,164 195,148 230,164 265,180 300,164 335,180 370,164 420,196" fill="none" stroke="#1da88a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="20,132 55,116 90,132 125,148 160,132 195,148 230,132 265,116 300,132 335,116 370,100 420,116" fill="none" stroke="#e7a64a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+          <circle cx="420" cy="36" r="5" fill="#5269e8"/>
+          <circle cx="420" cy="196" r="5" fill="#1da88a"/>
+        </svg>
+        <div class="visual-legend">
+          <span><i class="blue-dot"></i> Trajectory 1</span>
+          <span><i class="green-dot"></i> Trajectory 2</span>
+          <span><i class="orange-dot"></i> Trajectory 3</span>
+        </div>
+        <div class="visual-note">Illustration of possible random paths</div>
+      </div>
+    </section>
+
+    <section class="intro-grid">
+      <article class="info-card">
+        <span class="card-number">01</span>
+        <h3>Independent steps</h3>
+        <p>Each step contributes a random increment \(X_i\), independently drawn from the same distribution.</p>
+      </article>
+      <article class="info-card">
+        <span class="card-number">02</span>
+        <h3>Aggregate score</h3>
+        <p>The cumulative score after \(n\) steps is \(S_n=X_1+\cdots+X_n\).</p>
+      </article>
+      <article class="info-card">
+        <span class="card-number">03</span>
+        <h3>Large-sample behavior</h3>
+        <p>Normalization reveals whether averages stabilize and whether fluctuations become approximately Gaussian.</p>
+      </article>
+    </section>
+
+    <section class="section" id="models">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">THE FRAMEWORK</div>
+          <h2>Two models, two behaviors.</h2>
+        </div>
+        <p>We compare a positive-score model with a symmetric, zero-mean random walk.</p>
+      </div>
+
+      <div class="model-grid">
+        <article class="model-card bernoulli-card">
+          <div class="model-top">
+            <span class="model-icon">B</span>
+            <span class="tag">Model 01</span>
+          </div>
+          <h3>Bernoulli model</h3>
+          <p class="model-subtitle">A step either contributes one point or zero.</p>
+          <div class="equation">\(X_i\in\{0,1\}\)</div>
+          <div class="probability-row"><span>\(P(X_i=1)\)</span><strong>\(p\)</strong></div>
+          <div class="probability-row"><span>\(P(X_i=0)\)</span><strong>\(1-p\)</strong></div>
+          <div class="model-stats">
+            <div><span>Mean</span><strong>\(\mu=p\)</strong></div>
+            <div><span>Variance</span><strong>\(\sigma^2=p(1-p)\)</strong></div>
+          </div>
+          <p class="model-explanation">The total score counts successful steps. Its expected value increases linearly with \(n\).</p>
+        </article>
+
+        <article class="model-card rademacher-card">
+          <div class="model-top">
+            <span class="model-icon">R</span>
+            <span class="tag">Model 02</span>
+          </div>
+          <h3>Rademacher model</h3>
+          <p class="model-subtitle">Every step adds or subtracts one point with equal probability.</p>
+          <div class="equation">\(X_i\in\{-1,+1\}\)</div>
+          <div class="probability-row"><span>\(P(X_i=+1)\)</span><strong>\(\frac12\)</strong></div>
+          <div class="probability-row"><span>\(P(X_i=-1)\)</span><strong>\(\frac12\)</strong></div>
+          <div class="model-stats">
+            <div><span>Mean</span><strong>\(\mu=0\)</strong></div>
+            <div><span>Variance</span><strong>\(\sigma^2=1\)</strong></div>
+          </div>
+          <p class="model-explanation">Positive and negative increments balance on average, but the cumulative score still fluctuates.</p>
+        </article>
+      </div>
+      <p class="small-note">The models are mathematical descriptions of random scores. Their real-world meaning depends on how a score is defined in the application.</p>
+    </section>
+
+    <section class="section simulation-section" id="simulation">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">INTERACTIVE LAB</div>
+          <h2>Run your own experiment.</h2>
+        </div>
+        <p>Change the parameters, generate independent trajectories, and compare the empirical results with theoretical predictions.</p>
+      </div>
+
+      <div class="sim-layout">
+        <aside class="controls-card">
+          <div class="controls-title"><span class="control-icon">⚙</span><h3>Parameters</h3></div>
+
+          <label for="model">Stochastic model</label>
+          <select id="model">
+            <option value="rademacher">Rademacher (−1, +1)</option>
+            <option value="bernoulli">Bernoulli (0, 1)</option>
+          </select>
+
+          <div id="p-control" class="control-group hidden">
+            <div class="label-line"><label for="p">Success probability (p)</label><output id="p-value">0.50</output></div>
+            <input id="p" type="range" min="0.05" max="0.95" step="0.05" value="0.5">
+            <div class="range-labels"><span>0.05</span><span>0.95</span></div>
+          </div>
+
+          <div class="control-group">
+            <div class="label-line"><label for="n">Number of steps (n)</label><output id="n-value">100</output></div>
+            <input id="n" type="range" min="10" max="1000" step="10" value="100">
+            <div class="range-labels"><span>10</span><span>1,000</span></div>
+          </div>
+
+          <div class="control-group">
+            <div class="label-line"><label for="runs">Number of trajectories</label><output id="runs-value">1000</output></div>
+            <input id="runs" type="range" min="100" max="5000" step="100" value="1000">
+            <div class="range-labels"><span>100</span><span>5,000</span></div>
+          </div>
+
+          <div class="control-group">
+            <label for="m">Number of attackers (m)</label>
+            <input id="m" type="number" min="1" max="10000" value="10">
+            <p class="field-help">Context parameter; it does not change the increment distribution in this experiment.</p>
+          </div>
+
+          <div class="control-group">
+            <label for="epsilon">Tolerance for the LLN check (ε)</label>
+            <select id="epsilon">
+              <option value="0.05">0.05</option>
+              <option value="0.1" selected>0.10</option>
+              <option value="0.2">0.20</option>
+              <option value="0.5">0.50</option>
+            </select>
+          </div>
+
+          <button id="run-btn" class="run-button">Run simulation <span>→</span></button>
+          <button id="reset-btn" class="reset-button">Reset to defaults</button>
+          <p id="status" class="status" aria-live="polite">Ready to simulate.</p>
+        </aside>
+
+        <div class="results">
+          <div class="metrics-grid">
+            <article class="metric-card"><span>Empirical mean of \(S_n\)</span><strong id="metric-mean">—</strong><small id="metric-mean-theory">Theory: —</small></article>
+            <article class="metric-card"><span>Empirical variance of \(S_n\)</span><strong id="metric-var">—</strong><small id="metric-var-theory">Theory: —</small></article>
+            <article class="metric-card"><span>Variance of \(S_n/n\)</span><strong id="metric-avgvar">—</strong><small id="metric-avgvar-theory">Theory: —</small></article>
+            <article class="metric-card"><span>Variance of \(S_n/\sqrt n\)</span><strong id="metric-normvar">—</strong><small id="metric-normvar-theory">Theory: —</small></article>
+          </div>
+
+          <article class="chart-card">
+            <div class="chart-heading"><div><span class="chart-index">01</span><h3>Sample cumulative trajectories</h3></div><span class="chart-pill">Path behavior</span></div>
+            <p>Each line is one sample path. The mean line shows the theoretical expected cumulative score.</p>
+            <canvas id="paths" aria-label="Sample cumulative score trajectories"></canvas>
+            <div class="chart-caption">Horizontal axis: step \(k\). Vertical axis: cumulative score \(S_k\).</div>
+          </article>
+
+          <article class="chart-card">
+            <div class="chart-heading"><div><span class="chart-index">02</span><h3>Distribution of \(S_n\)</h3></div><span class="chart-pill">Raw score</span></div>
+            <p>The final cumulative score. Its mean is \(n\mu\) and its variance is \(n\sigma^2\).</p>
+            <canvas id="hist-s" aria-label="Distribution of the cumulative score Sn"></canvas>
+            <div class="chart-caption">Empirical distribution across independent simulated trajectories.</div>
+          </article>
+
+          <article class="chart-card">
+            <div class="chart-heading"><div><span class="chart-index">03</span><h3>Distribution of \(S_n/n\)</h3></div><span class="chart-pill">LLN</span></div>
+            <p>The sample average per step. As \(n\) increases, it concentrates around the expected increment \(\mu\).</p>
+            <canvas id="hist-avg" aria-label="Distribution of Sn divided by n"></canvas>
+            <div class="chart-caption">The vertical reference line marks the theoretical mean \(\mu\).</div>
+          </article>
+
+          <article class="chart-card">
+            <div class="chart-heading"><div><span class="chart-index">04</span><h3>Distribution of \(S_n/\sqrt n\)</h3></div><span class="chart-pill">Fluctuations</span></div>
+            <p>This scaling keeps the variance constant. In the Rademacher case, the distribution approaches the standard normal curve.</p>
+            <canvas id="hist-norm" aria-label="Distribution of Sn divided by square root n"></canvas>
+            <div class="chart-caption">For Bernoulli, the CLT normalization also subtracts the mean and divides by \(\sigma\).</div>
+          </article>
+
+          <article class="chart-card">
+            <div class="chart-heading"><div><span class="chart-index">05</span><h3>Standardized score and the CLT</h3></div><span class="chart-pill">Normal approximation</span></div>
+            <p>The standardized variable \(Z_n=(S_n-n\mu)/(\sigma\sqrt n)\) should approach a standard normal distribution when the CLT applies.</p>
+            <canvas id="hist-z" aria-label="Standardized score distribution with standard normal density"></canvas>
+            <div class="chart-caption">Bars: simulated standardized scores. Curve: standard normal density.</div>
+          </article>
+
+          <article class="chart-card lln-card">
+            <div class="chart-heading"><div><span class="chart-index">06</span><h3>Law of Large Numbers check</h3></div><span class="chart-pill">Convergence in probability</span></div>
+            <div class="lln-results">
+              <div><span>Target mean (μ)</span><strong id="lln-mu">—</strong></div>
+              <div><span>Empirical \(P(|S_n/n-\mu|<\varepsilon)\)</span><strong id="lln-prob">—</strong></div>
+              <div><span>Chebyshev upper bound on the error probability</span><strong id="lln-bound">—</strong></div>
+            </div>
+            <p id="lln-interpretation" class="interpretation">Run the simulation to inspect convergence.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="theory">
+      <div class="section-heading">
+        <div><div class="eyebrow">MATHEMATICAL BACKGROUND</div><h2>From random steps to limit theorems.</h2></div>
+        <p>Independent and identically distributed increments connect finite simulations to general probabilistic results.</p>
+      </div>
+
+      <div class="theory-list">
+        <article class="theory-row">
+          <div class="theory-label"><span>01</span><h3>Cumulative score</h3></div>
+          <div class="theory-content">
+            <div class="equation-box">\(S_n=\sum_{i=1}^{n}X_i\)</div>
+            <p>Since the increments are independent and identically distributed, with mean \(\mu\) and variance \(\sigma^2\), linearity of expectation and independence imply:</p>
+            <div class="formula-pair"><div><span>Expected value</span>\(E[S_n]=n\mu\)</div><div><span>Variance</span>\(\operatorname{Var}(S_n)=n\sigma^2\)</div></div>
+          </div>
+        </article>
+        <article class="theory-row">
+          <div class="theory-label"><span>02</span><h3>Law of Large Numbers</h3></div>
+          <div class="theory-content">
+            <div class="equation-box">\( \frac{S_n}{n}\xrightarrow{P}\mu \)</div>
+            <p>The sample average converges in probability to the expected increment. For every \(\varepsilon>0\), the probability that it differs from \(\mu\) by more than \(\varepsilon\) tends to zero.</p>
+            <div class="formula-pair"><div><span>Mean</span>\(E[S_n/n]=\mu\)</div><div><span>Variance</span>\(\operatorname{Var}(S_n/n)=\sigma^2/n\)</div></div>
+            <p class="theory-note">Chebyshev's inequality gives \(P(|S_n/n-\mu|\geq\varepsilon)\leq \sigma^2/(n\varepsilon^2)\).</p>
+          </div>
+        </article>
+        <article class="theory-row">
+          <div class="theory-label"><span>03</span><h3>Square-root scaling</h3></div>
+          <div class="theory-content">
+            <div class="equation-box">\( \operatorname{Var}(S_n/\sqrt n)=\sigma^2 \)</div>
+            <p>Dividing by \(\sqrt n\) preserves the scale of random fluctuations. Unlike \(S_n/n\), this quantity does not generally concentrate at a constant.</p>
+            <div class="formula-pair"><div><span>Mean</span>\(E[S_n/\sqrt n]=\sqrt n\,\mu\)</div><div><span>Variance</span>\(\operatorname{Var}(S_n/\sqrt n)=\sigma^2\)</div></div>
+            <p class="theory-note">For Bernoulli increments with \(p>0\), \(S_n/\sqrt n\) has a growing mean. For a zero-mean Rademacher process, it has mean zero and variance one.</p>
+          </div>
+        </article>
+        <article class="theory-row">
+          <div class="theory-label"><span>04</span><h3>Central Limit Theorem</h3></div>
+          <div class="theory-content">
+            <div class="equation-box">\( \frac{S_n-n\mu}{\sigma\sqrt n}\xrightarrow{d}N(0,1) \)</div>
+            <p>For independent, identically distributed increments with finite positive variance, the standardized sum converges in distribution to a standard normal random variable.</p>
+            <div class="highlight-box"><strong>Special case: Rademacher</strong><br>Here \(\mu=0\) and \(\sigma^2=1\). Therefore, \(S_n/\sqrt n\xrightarrow{d}N(0,1)\).</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="interpretation">
+      <div class="section-heading">
+        <div><div class="eyebrow">APPLICATION</div><h2>Interpreting systems and attackers.</h2></div>
+        <p>The mathematical results describe aggregate scores; a practical interpretation requires a clear model of how attackers affect the increments.</p>
+      </div>
+      <div class="interpretation-grid">
+        <article class="interpretation-card">
+          <span class="interpretation-symbol">n</span>
+          <h3>System size / number of steps</h3>
+          <p>In this model, \(n\) is the number of increments. Larger \(n\) increases the scale of the raw cumulative score, while the average \(S_n/n\) becomes more concentrated around \(\mu\).</p>
+        </article>
+        <article class="interpretation-card">
+          <span class="interpretation-symbol">m</span>
+          <h3>Number of attackers</h3>
+          <p>The parameter \(m\) describes the number of attackers in the scenario. The assignment does not specify a mathematical relationship between \(m\) and the distribution of \(X_i\), so the simulation keeps \(m\) contextual rather than changing the probabilities automatically.</p>
+        </article>
+        <article class="interpretation-card">
+          <span class="interpretation-symbol">Δ</span>
+          <h3>Positive vs. symmetric increments</h3>
+          <p>Bernoulli increments have a positive mean when \(p>0\). Rademacher increments have zero mean, so gains and losses balance on average, even though individual trajectories can move far from zero.</p>
+        </article>
+      </div>
+      <div class="caution-box">
+        <span class="caution-icon">i</span>
+        <div><strong>Modelling assumption</strong><p>To study the effect of \(m\) quantitatively, an additional assumption is needed, such as a specified function \(p=p(m)\), or a rule describing how attackers contribute to each increment. This relationship should be justified rather than assumed without explanation.</p></div>
+      </div>
+    </section>
+
+    <section class="conclusion">
+      <div class="eyebrow">KEY TAKEAWAYS</div>
+      <h2>What should the experiments reveal?</h2>
+      <div class="takeaway-grid">
+        <div><span>01</span><p>The mean and variance of the raw score grow as \(n\mu\) and \(n\sigma^2\).</p></div>
+        <div><span>02</span><p>The average score \(S_n/n\) concentrates around \(\mu\), illustrating the LLN.</p></div>
+        <div><span>03</span><p>Square-root scaling preserves the variance of fluctuations.</p></div>
+        <div><span>04</span><p>For Rademacher increments, \(S_n/\sqrt n\) approaches a standard normal distribution.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>STATISTICS · HOMEWORK 3</span>
+    <span>Stochastic Penetration Models</span>
+  </footer>
+</body>
+</html>
